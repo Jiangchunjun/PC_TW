@@ -361,6 +361,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   static uint16_t sys_count=0;
   static uint8_t count=0;
   static  u16 pre_duty=0;
+  static  u16 count_s=0,count_r=0;
   extern uint8_t g_s_color_data;
   
   
@@ -370,7 +371,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
     g_on_time++;
     g_pulse_time1++;
   }
-  if(g_on_time>(10*(period_time)+400))
+  if(g_on_time>(10*(period_time)+100))//150-->10ms 
   {
     g_pulse_time1=0;
     g_pulse_time2=0;
@@ -397,6 +398,11 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
       g_s_duty/=50;
       pre_duty=g_s_duty; 
       g_flag_uart=1;
+      count_r++;
+    }
+    else
+    {
+      count_s++;
     }
     data=0;
   } 

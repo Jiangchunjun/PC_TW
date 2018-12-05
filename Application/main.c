@@ -105,7 +105,7 @@ void main(void)
                     } 
                   }
                 }
-                CURRENT_UPDATE_DUTY(g_a_duty);
+                CURRENT_UPDATE_DUTY(g_a_duty);//update duty
                 VOLTAGE_UPDATE_DUTY(g_a_duty);  
             }
         }

@@ -263,6 +263,7 @@ C:\C Pan\work\new pc\PC_TW\Application
 -D__EDG_CPP11_IL_EXTENSIONS_SUPPORTED=1
 -DOT_TW_40W=1
 -DEXTERN_INTERRUPT=1
+-DDEAD_TIME=1
 -D_DLIB_CONFIG_FILE_HEADER_NAME="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\stm8\LIB\dlstm8smn.h"
 -D_DLIB_CONFIG_FILE_STRING="C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 8.0\\stm8\\LIB\\dlstm8smn.h"
 -D__VERSION__="IAR C/C++ Compiler V3.10.1.201 for STM8"

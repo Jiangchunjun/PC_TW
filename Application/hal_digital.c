@@ -299,7 +299,7 @@ void Time1_Config(void)
   
   /* Set the Repetition Counter value */
   TIM1->RCR = 0;
-    
+#ifndef DEAD_TIME
     //TIM1_TimeBaseInit(0x1,TIM1_COUNTERMODE_UP,TIM1_PERIOD,0);
 #ifdef TIME_CAPTURE
   TIM1->IER|=0X01;
@@ -345,7 +345,10 @@ void Time1_Config(void)
   TIM1->CCR4H = (uint8_t)(current_duty >> 8);
   TIM1->CCR4L = (uint8_t)(current_duty);
   //TIM1_OC4Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,current_duty,TIM1_OCPOLARITY_LOW,TIM1_OCIDLESTATE_SET);//HIGH
-  
+#else
+   TIM1_OC2Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_ENABLE,voltage_duty,TIM1_OCPOLARITY_HIGH,TIM1_OCNPOLARITY_HIGH,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
+   TIM1->DTR=0X55;
+#endif  
   TIM1->CR1 |= TIM1_CR1_CEN;
   //TIM1_Cmd(ENABLE); 
   TIM1->BKR |= TIM1_BKR_MOE;  

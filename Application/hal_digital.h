@@ -37,6 +37,8 @@
 //3  
 #define VOLTAGE_UPDATE_DUTY(a)   TIM1_SetCompare4(a)//4
 
+#define UPDATE_DUTY(a)   TIM1_SetCompare2(a)//4
+
 /* 00 ----> DW*/ 
 /* 01 ---->Flick short*/
 /* 10 ---->Flick 3 times*/

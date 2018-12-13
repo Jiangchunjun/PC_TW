@@ -51,7 +51,7 @@ uint8_t flick_judge=1;
 uint8_t g_mode=0;
 uint32_t g_duty_index=0;
 uint8_t g_flag_uart=0;
-
+uint8_t g_flag_uart1=0;
 //uint16_t g_on_time=0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -1253,8 +1253,8 @@ void Fast_tune(void)
 /******************************************************************************/
 void Color_data_save(void)
 {
-   static uint8_t save_count=0;
-   
+   static uint8_t save_count=0,error_count=0;
+   extern uint16_t period_time;
    if(save_count++>150)
    {
      save_count=0;
@@ -1272,6 +1272,20 @@ void Color_data_save(void)
    {
      g_flag_uart=0;
      UART1_SendData8(g_s_color_data+1);
+   }
+   if(g_flag_uart1)
+   {
+     if(g_flag_uart1==2)
+     {
+       //UART1_SendData8(error_count++);
+     }
+     else
+     {
+       if(g_flag_uart1==3)
+         UART1_SendData8(error_count++);
+       //UART1_SendData8(period_time-240);
+     }
+     g_flag_uart1=0;
    }
 }
 /******************************************************************************/

@@ -1794,7 +1794,7 @@
                     <name>CCDefines</name>
                     <state>OT_TW_40W</state>
                     <state>EXTERN_INTERRUPT</state>
-                    <state>DEAD_TIME</state>
+                    <state>DEAD_TIME1</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

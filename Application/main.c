@@ -48,7 +48,7 @@ void main(void)
     __disable_interrupt();
     MCU_Ini();
     dimming_judge();
-    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//上升沿中断
+    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_RISE_ONLY);//上升沿中断
     __enable_interrupt();
     while (1)
     {   

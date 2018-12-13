@@ -176,18 +176,22 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
     }
     else
     {
-      if(g_pulse_time1-g_pulse_time2>10)
+      if(g_pulse_time1-g_pulse_time2>100)//10 
       {
-        if(flag_pulse++==1)
+        if(flag_pulse==1)
         {
-          if(g_on_time>330&&g_on_time<480)//110 160 
+          flag_pulse=2;
+          if(g_on_time>330&&g_on_time<480)//110 180 330 480 one empty space 330
           {
             period_time=g_on_time; //get period
             g_on_time=0; //clear on_time for data check.
+            g_flag_uart1=1;
           }
           else
           {
+            //g_flag_uart1=2;//test
             count_flag=0;  //not start bit
+            //period_time=g_on_time; //get period test
             g_on_time=0;
             flag_pulse=0;    
             noise_flag=1;
@@ -197,9 +201,9 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
         }
         else
         {
-          if((g_on_time-pre_time)>(period_time-20))
+          if((g_on_time-pre_time)>(period_time-30))//30
           {
-            data|=(1<<(9-(g_on_time/(period_time-10)-1)));
+            data|=(1<<(9-(g_on_time/(period_time-5)-1)));//period_time-10
             test[l++]=g_on_time;
             index=l;
             if(l>10)l=0;
@@ -371,7 +375,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
     g_on_time++;
     g_pulse_time1++;
   }
-  if(g_on_time>(10*(period_time)+100))//150-->10ms 
+  if(g_on_time>(10*(450)+200))//150-->10ms  period_time
   {
     g_pulse_time1=0;
     g_pulse_time2=0;
@@ -402,6 +406,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
     }
     else
     {
+      //g_flag_uart1=3;
       count_s++;
     }
     data=0;

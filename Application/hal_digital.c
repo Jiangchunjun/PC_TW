@@ -52,6 +52,11 @@ uint8_t g_mode=0;
 uint32_t g_duty_index=0;
 uint8_t g_flag_uart=0;
 uint8_t g_flag_uart1=0;
+uint8_t g_flag_cct=0;
+uint16_t g_pluse_count=0;
+
+extern uint16_t  test[10];
+extern uint8_t index;
 //uint16_t g_on_time=0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -116,6 +121,8 @@ void GPIO_Config(void)
     GPIOD->CR2 |= (uint8_t)GPIO_PIN_3;
     
     GPIO_Init(GPIOC,GPIO_PIN_4,GPIO_MODE_OUT_PP_LOW_FAST);  //PWM for voltage loop reference
+    
+    GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_LOW_FAST);  //PWM for voltage loop reference
 }
 /********************************************************************************/
 
@@ -1253,7 +1260,8 @@ void Fast_tune(void)
 /******************************************************************************/
 void Color_data_save(void)
 {
-   static uint8_t save_count=0,error_count=0;
+   static uint8_t save_count=0,error_count=0,count=0;
+   uint8_t data_1=0;
    extern uint16_t period_time;
    if(save_count++>150)
    {
@@ -1268,6 +1276,7 @@ void Color_data_save(void)
        FLASH_Lock(FLASH_MEMTYPE_DATA);
      }
    }
+   g_pluse_count++;
    if(g_flag_uart==1)
    {
      g_flag_uart=0;
@@ -1275,17 +1284,34 @@ void Color_data_save(void)
    }
    if(g_flag_uart1)
    {
-     if(g_flag_uart1==2)
+     if(g_flag_uart1==1)
      {
-       //UART1_SendData8(error_count++);
+       if(count==0)
+       {
+          //data_1=(test[index-1]>>8);
+          data_1=(g_pluse_count>>8);
+         UART1_SendData8(data_1);
+       }
+       else
+       {
+         //UART1_SendData8(test[index-1]&0XFF);
+         UART1_SendData8(g_pluse_count&0XFF);
+       }
      }
      else
      {
        if(g_flag_uart1==3)
-         UART1_SendData8(error_count++);
+       {
+         
+       }
+       //UART1_SendData8(error_count++);
        //UART1_SendData8(period_time-240);
      }
+     if(count++==1)
+     {
      g_flag_uart1=0;
+     count=0;
+     }
    }
 }
 /******************************************************************************/
@@ -1371,3 +1397,71 @@ void Flicker_handle(void)
     return (i < 0 ? -i : i);
   }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/******************************************************************************/
+void cct_get_data(void)
+{ 
+  static uint16_t data=0;
+  uint8_t i=0;
+  if(g_flag_cct==1)
+  {
+    g_flag_cct=0;
+    data=0;
+    for(i=0;i<(index-1);i++)
+    {
+      
+      if(400<test[i]&&test[i]<500)
+      {
+        data|=(1<<9);
+      }
+      else
+        if(830<test[i]&&test[i]<970)
+        {
+          data|=(1<<8);
+        }
+        else
+          if(1300<test[i]&&test[i]<1400)
+          {
+            data|=(1<<7);
+          }
+          else
+            if(1700<test[i]&&test[i]<1930)
+            {
+              data|=(1<<6);
+            }
+            else
+              if(2120<test[i]&&test[i]<2380)
+              {
+                data|=(1<<5);
+              }
+              else      
+                if(2570<test[i]&&test[i]<2830)
+                {
+                  data|=(1<<4);
+                }
+                else
+                  if(3020<test[i]&&test[i]<3280)
+                  {
+                    data|=(1<<3);
+                  }
+                  else
+                    if(3450<test[i]&&test[i]<3750)
+                    {
+                      data|=(1<<2);
+                    }
+      
+                    else      
+                      if(3900<test[i]&&test[i]<4200)
+                      {
+                        data|=(1<<1);
+                      }
+                      else
+                        if(4350<test[i]&&test[i]<4650)
+                        {
+                          data|=(1<<0);
+                        }
+      
+    }
+   //UART1_SendData8((data>>4));
+  }
+}
+/******************************************************************************/

@@ -48,8 +48,9 @@ void main(void)
     __disable_interrupt();
     MCU_Ini();
     dimming_judge();
-    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_RISE_ONLY);//上升沿中断
+    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//上升沿中断
     __enable_interrupt();
+    GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);  //PWM for voltage loop reference
     while (1)
     {   
         if(i++>250)
@@ -59,8 +60,10 @@ void main(void)
         }
         if(g_sys_flag)//period 10ms           
         {    
+          //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
           g_sys_flag=0;
           Color_data_save();
+          cct_get_data();
           /****this is for 200ms 1 1 delay*/
           if(!s_flag_delay)
           {

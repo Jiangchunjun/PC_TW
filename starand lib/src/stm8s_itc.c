@@ -37,16 +37,14 @@
 extern uint16_t ad_arr[30];
 extern uint32_t ad_sum;
 extern int32_t  g_s_duty;
-extern uint16_t ad_ac_low;
-extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart;
 extern uint16_t ad_ac_low,g_pluse_count;
-extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct;
+extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;
 uint8_t count_flag=0,flag_pulse=0,noise_flag=0,l=0,index=0,g_run_flag=0;
 uint16_t data=1;
 uint32_t count_pre=0,pre_time=0;
-uint16_t test[10],period_time=600;
+uint16_t test[100],period_time=600;
 uint8_t mos_flag=0; //mos_control
-uint16_t g_pulse_time1=0,g_pulse_time2=0;
+uint32_t g_pulse_time1=0,g_pulse_time2=0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
@@ -169,65 +167,79 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
   it is recommended to set a breakpoint on the following instruction.
   */
   static uint8_t count_s=0;
-  if(g_run_flag==0)
+  uint32_t temp=0;
+  if(1)
   {
-    g_flag_uart1=1;//test cout value
-    //g_pluse_count++;
-    if(flag_pulse==0)
+    g_pluse_count=g_pulse_time1;
+    //g_flag_uart1=1;
+//    g_pluse_count++;
+//    g_flag_uart1=1; // print pluse count 
+//    if(flag_pulse==0)
+//    {
+//      count_flag=1;
+//      flag_pulse=2;
+//    }
+//    else
     {
-      count_flag=1;
-      flag_pulse=2;
-    }
-    else
-    {
-      if(g_pulse_time1-g_pulse_time2>=100)//10 
+      if(g_pulse_time1-g_pulse_time2>=100)//10 two pluse time need to more than 20ms
       {
-        if(flag_pulse==2)
+        //g_pluse_count++;
+        temp=g_pulse_time1-g_pulse_time2;
+//        g_pluse_count=temp;
+        if(temp>250&&temp<350)//20ms judge
         {
-          flag_pulse=3;
-          if(g_on_time>230&&g_on_time<480)//110 180 330 480 one empty space 330
+//          GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
+          if(flag_pulse!=1)
           {
-            period_time=g_on_time; //get period
-            g_on_time=0; //clear on_time for data check.
-            //g_flag_uart1=1;
+            flag_pulse=1;//start bit
+            period_time=450; //get period
+            count_flag=1;
+            g_on_time=0;
+            //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+           
           }
           else
           {
-            //g_flag_uart1=2;//test
-            count_flag=0;  //not start bit
-            //period_time=g_on_time; //get period test
+            flag_pulse=0;
+            period_time=0;// unexpected 20ms
+            count_flag=0;
             g_on_time=0;
-            flag_pulse=0;    
-            noise_flag=1;
-            g_pulse_time1=0;
-            g_pulse_time2=0;
+            GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
           }
         }
         else
         {
-          if((g_on_time-pre_time)>(period_time-50))//30
+          if(flag_pulse==1)// have 20ms
           {
-            data|=(1<<(9-(g_on_time/(445)-1)));//period_time-10
+            if(temp>300)
+            {
+            data|=(1<<(9-(g_on_time/(430)-1)));//period_time-10
             test[l++]=g_on_time;
             index=l;
             if(l>10)l=0;
             //g_flag_uart1=1;
+//            GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+//            GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
+            }
+
           }
           else
           {
-            noise_flag=1;
+            flag_pulse=0;
+            period_time=0;// unexpected 20ms
+            count_flag=0;
+            g_on_time=0;
           }
-          pre_time=g_on_time;
+          
         }
       }
       else
       {
-        count_s++;
+        //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
       }
-      
-    }
-    g_pulse_time2=g_pulse_time1;
+      g_pulse_time2=g_pulse_time1;
   }
+}
 }
 
 /**
@@ -380,27 +392,26 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   
   
   nop();  
+  g_pulse_time1++;
   if(count_flag)
   {
     g_on_time++;
-    g_pulse_time1++;
   }
   if(g_on_time>(10*(450)+100))//150-->10ms  period_time
   {
     g_run_flag=1;
     g_flag_cct=1;//time to update cct
     //g_flag_uart=1;
-    g_pulse_time1=0;
-    g_pulse_time2=0;
+    //g_pulse_time1=0;
+    //g_pulse_time2=0;
     count_pre=(data>>4);
-    GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
-
+    flag_pulse=0;
     u8 k,p;
     k=count_pre&0X000F;
     p=~k;
     k=p&0X0F;
     p=data&0X000F;
-    if(1)//k==p)//need to update
+    if(k==p)//need to update
     {
       if(count_pre>0X3F)
         count_pre=0X3F;
@@ -410,21 +421,25 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
       g_s_duty=3200*(count_pre-1);
       g_s_duty/=50;
       pre_duty=g_s_duty; 
-      //g_flag_uart=1;
+      g_flag_uart=1;
       count_r++;
+      g_save_flag=1;
     }
     else
     {
       //g_flag_uart1=3;
-      //count_s++;
+      count_s++;
+      GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
+//       GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+//       GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
     }
-        l=0;
+    l=0;
     pre_time=0;
     flag_pulse=0;
     g_on_time=0;
     count_flag=0;
     data=0;
-    g_run_flag=0;
+   //g_run_flag=0;
     
   } 
   

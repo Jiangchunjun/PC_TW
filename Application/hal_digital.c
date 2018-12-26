@@ -54,9 +54,11 @@ uint8_t g_flag_uart=0;
 uint8_t g_flag_uart1=0;
 uint8_t g_flag_cct=0;
 uint16_t g_pluse_count=0;
+uint8_t g_save_flag=0;
 
-extern uint16_t  test[10];
-extern uint8_t index;
+extern uint16_t  test[100];
+extern uint8_t index,g_run_flag,flag_pulse;
+extern uint32_t g_pulse_time1;
 //uint16_t g_on_time=0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -736,7 +738,7 @@ void power_down(void)
                             if(temp==0X5C)//5C DW
                             {
                                 FLASH_Unlock(FLASH_MEMTYPE_DATA);
-                                FLASH_ProgramByte(DIMMING_FLAG,0X5D); // change to 5D TW
+                                //FLASH_ProgramByte(DIMMING_FLAG,0X5D); // change to 5D TW
                                 //WDG_RLOAD;
                                 g_dimming_flag=2;
                                 {
@@ -751,7 +753,7 @@ void power_down(void)
                                // if(temp==0X5D)//5D TW
                                 {
                                     FLASH_Unlock(FLASH_MEMTYPE_DATA);
-                                    FLASH_ProgramByte(DIMMING_FLAG,0X5C);  // change to 5C DW
+                                    //FLASH_ProgramByte(DIMMING_FLAG,0X5C);  // change to 5C DW
                                     //WDG_RLOAD;
                                     g_dimming_flag=1;
                                     temp2_pre=0;
@@ -949,7 +951,7 @@ void power_reset()
                 reset_count=0;
                 FLASH_Unlock(FLASH_MEMTYPE_DATA);
                 //WDG_RLOAD;
-                FLASH_ProgramByte(DIMMING_FLAG,0X5B);  // single mode default mode
+                //FLASH_ProgramByte(DIMMING_FLAG,0X5B);  // single mode default mode
                 //WDG_RLOAD;
                 FLASH_Lock(FLASH_MEMTYPE_DATA);
                 g_dimming_flag=0;
@@ -1057,7 +1059,7 @@ void DW_handle(void)
         {
           count1=0;
           FLASH_Unlock(FLASH_MEMTYPE_DATA);
-          FLASH_ProgramByte(DIMMING_FLAG,0X5D); // change to 5D TW
+          //FLASH_ProgramByte(DIMMING_FLAG,0X5D); // change to 5D TW
           //WDG_RLOAD;
           identify_flag=1;
           g_dimming_flag=2;
@@ -1083,13 +1085,15 @@ void DW_handle(void)
             {
                 if(temp2-g_s_duty>40)//20
                 {
-                    FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)(g_s_duty*255/3200));
+                    //FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)(g_s_duty*255/3200));
                 }
             }
             else
             {
                 if(g_s_duty-temp2>40)//20
-                    FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)(g_s_duty*255/3200));     
+                {
+                    //FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)(g_s_duty*255/3200));    
+                }
             }
 //            if(MODE_UPDATE)
 //            {
@@ -1264,19 +1268,18 @@ void Color_data_save(void)
    uint8_t data_1=0;
    extern uint16_t period_time;
    if(save_count++>150)
-   {
-     save_count=0;
-     
-     if(g_s_color_data!=g_record_color_data)
+   {   
+     if(g_s_color_data!=g_record_color_data&&g_save_flag==1&&flag_pulse==0)
      {
        g_record_color_data=g_s_color_data;
-       
+       save_count=0;
+       g_save_flag=0;
        FLASH_Unlock(FLASH_MEMTYPE_DATA);
        FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)g_record_color_data);
        FLASH_Lock(FLASH_MEMTYPE_DATA);
      }
    }
-   g_pluse_count++;
+   //g_pluse_count++;
    if(g_flag_uart==1)
    {
      g_flag_uart=0;
@@ -1288,7 +1291,7 @@ void Color_data_save(void)
      {
        if(count==0)
        {
-          //data_1=(test[index-1]>>8);
+          data_1=(test[index-1]>>8);
           data_1=(g_pluse_count>>8);
          UART1_SendData8(data_1);
        }
@@ -1409,58 +1412,68 @@ void cct_get_data(void)
     for(i=0;i<(index-1);i++)
     {
       
-      if(400<test[i]&&test[i]<500)
+      if(300<test[i]&&test[i]<600)//450
       {
         data|=(1<<9);
       }
       else
-        if(830<test[i]&&test[i]<970)
+        if(700<test[i]&&test[i]<1100)//900
         {
           data|=(1<<8);
         }
         else
-          if(1300<test[i]&&test[i]<1400)
+          if(1150<test[i]&&test[i]<1550)//1350
           {
             data|=(1<<7);
           }
           else
-            if(1700<test[i]&&test[i]<1930)
+            if(1600<test[i]&&test[i]<2000)//1800
             {
               data|=(1<<6);
             }
             else
-              if(2120<test[i]&&test[i]<2380)
+              if(2050<test[i]&&test[i]<2450)//2250
               {
                 data|=(1<<5);
               }
               else      
-                if(2570<test[i]&&test[i]<2830)
+                if(2500<test[i]&&test[i]<2900)//2700
                 {
                   data|=(1<<4);
                 }
                 else
-                  if(3020<test[i]&&test[i]<3280)
+                  if(2950<test[i]&&test[i]<3350)//3150
                   {
                     data|=(1<<3);
                   }
                   else
-                    if(3450<test[i]&&test[i]<3750)
+                    if(3400<test[i]&&test[i]<3800)//3600
                     {
                       data|=(1<<2);
                     }
       
                     else      
-                      if(3900<test[i]&&test[i]<4200)
+                      if(3850<test[i]&&test[i]<4250)//4050
                       {
                         data|=(1<<1);
                       }
                       else
-                        if(4350<test[i]&&test[i]<4650)
+                        if(4300<test[i]&&test[i]<4700)//4500
                         {
                           data|=(1<<0);
                         }
       
     }
+//    g_s_color_data=((data>>4)-1);
+//    if(g_s_color_data>50)
+//      g_s_color_data=50;
+//    uint32_t temp=0; 
+//    temp=g_s_color_data;
+//    g_s_duty=3200*(temp);
+//    g_s_duty/=50;
+//    g_flag_uart=1;
+//    g_save_flag=1;
+    g_run_flag=0;
    //UART1_SendData8((data>>4));
   }
 }

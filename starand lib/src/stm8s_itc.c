@@ -40,7 +40,7 @@ extern int32_t  g_s_duty;
 extern uint16_t ad_ac_low,g_pluse_count;
 extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;
 uint8_t count_flag=0,flag_pulse=0,noise_flag=0,l=0,index=0,g_run_flag=0;
-uint16_t data=1;
+uint16_t data=0;
 uint32_t count_pre=0,pre_time=0;
 uint16_t test[100],period_time=600;
 uint8_t mos_flag=0; //mos_control
@@ -388,6 +388,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   static uint8_t count=0;
   static  u16 pre_duty=0;
   static  u16 count_s=0,count_r=0;
+  static  u32 temp=0;
   extern uint8_t g_s_color_data;
   
   
@@ -446,15 +447,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   if(sys_count++>=SYSTICK_TIME)//79//49
   { 
     sys_count=0;     
-    g_sys_flag=1;   
-//    if(noise_flag)
-//    {
-//      if(count++>0)
-//      {
-//        noise_flag=0;
-//        count=0;
-//      }
-//    }
+    g_sys_flag=1; 
   }	 
   TIM2->SR1&=(~(0x01));// clear flag
 

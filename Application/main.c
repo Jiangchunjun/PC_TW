@@ -47,7 +47,6 @@ void main(void)
     /* Infinite loop */
     __disable_interrupt();
     MCU_Ini();
-    dimming_judge();
     EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//falling edge
     __enable_interrupt();
     GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);  //PWM for voltage loop reference
@@ -73,8 +72,8 @@ void main(void)
               count=0;
               s_flag_delay=1;
               //TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,0,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
-              VOLTAGE_UPDATE_DUTY(g_a_duty);  
-              CURRENT_UPDATE_DUTY(g_a_duty);
+              VOLTAGE_UPDATE_DUTY(3200-g_a_duty);  
+              CURRENT_UPDATE_DUTY(3200-g_a_duty);
             }
           }
         }
@@ -110,12 +109,12 @@ void main(void)
                     } 
                   }
                 }
-                CURRENT_UPDATE_DUTY(g_a_duty);//update duty
-                VOLTAGE_UPDATE_DUTY(g_a_duty);  
-                UPDATE_DUTY(g_a_duty);
+                CURRENT_UPDATE_DUTY(3200-g_a_duty);//update duty
+                VOLTAGE_UPDATE_DUTY(3200-g_a_duty);  
+                //UPDATE_DUTY(3200-g_a_duty);
             }
         }
-         wfi();        
+         //__halt();     
     }
 }
 

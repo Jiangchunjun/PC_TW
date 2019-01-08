@@ -133,6 +133,7 @@ void MCU_Ini(void)
 {
   CLK_Config();
   GPIO_Config();
+  dimming_judge();
   Time1_Config();
   Time2_Config();
   UART1_Init(115200,UART1_WORDLENGTH_8D,UART1_STOPBITS_1,UART1_PARITY_NO,UART1_SYNCMODE_CLOCK_DISABLE,UART1_MODE_TXRX_ENABLE);
@@ -337,7 +338,7 @@ void Time1_Config(void)
   /* Set the Pulse value */
   TIM1->CCR3H = (uint8_t)(voltage_duty >> 8);
   TIM1->CCR3L = (uint8_t)(voltage_duty);  
-  TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,voltage_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
+  TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,3200-g_s_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
   
   /* Disable the Channel 4: Reset the CCE Bit */
   TIM1->CCER2 &= (uint8_t)(~(TIM1_CCER2_CC4E | TIM1_CCER2_CC4P));
@@ -351,8 +352,8 @@ void Time1_Config(void)
   /* Set the Output Idle state */
   TIM1->OISR |= (uint8_t)(~TIM1_CCER2_CC4P);
   /* Set the Pulse value */
-  TIM1->CCR4H = (uint8_t)(current_duty >> 8);
-  TIM1->CCR4L = (uint8_t)(current_duty);
+  TIM1->CCR4H = (uint8_t)((3200-g_s_duty) >> 8);
+  TIM1->CCR4L = (uint8_t)(3200-g_s_duty);
   //TIM1_OC4Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,current_duty,TIM1_OCPOLARITY_LOW,TIM1_OCIDLESTATE_SET);//HIGH
 #else
    TIM1_OC2Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_ENABLE,voltage_duty,TIM1_OCPOLARITY_HIGH,TIM1_OCNPOLARITY_HIGH,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
@@ -361,6 +362,7 @@ void Time1_Config(void)
   TIM1->CR1 |= TIM1_CR1_CEN;
   //TIM1_Cmd(ENABLE); 
   TIM1->BKR |= TIM1_BKR_MOE;  
+  g_a_duty=g_s_duty;
   //TIM1_CtrlPWMOutputs(ENABLE);  
 }
 /******************************************************************************/

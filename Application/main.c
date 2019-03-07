@@ -36,86 +36,79 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 uint16_t g_period=0, g_on_time=0;
-extern uint8_t g_dimming_flag, g_mode;
+extern uint8_t g_dimming_flag, g_mode,flag,g_adc_flag;
 extern uint16_t data;
 void main(void)
-{ 
-    // static uint8_t delay_done=0;   
-    static uint16_t count=0; 
-    static uint8_t s_flag_delay=0,i=0;
-    
-    /* Infinite loop */
-    __disable_interrupt();
-    MCU_Ini();
-    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//falling edge
-    __enable_interrupt();
-    GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);  //PWM for voltage loop reference
-    GPIO_Init(GPIOD,GPIO_PIN_2,GPIO_MODE_OUT_PP_HIGH_FAST);  //PWM for voltage loop reference
-    while (1)
-    {   
-        if(i++>250)
-        {
-            WDG_RLOAD;
-            i=0;
-        }
-        if(g_sys_flag)//period 10ms           
-        {    
-          //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
-          g_sys_flag=0;
-          Color_data_save();
-          cct_get_data();
-          /****this is for 200ms 1 1 delay*/
-          if(!s_flag_delay)
-          {
-            if(count++>=0)
-            {
-              count=0;
-              s_flag_delay=1;
-              //TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,0,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
-              VOLTAGE_UPDATE_DUTY(3200-g_a_duty);  
-              CURRENT_UPDATE_DUTY(3200-g_a_duty);
-            }
-          }
-        }
-        if(s_flag_delay)
-        {
-            if(count++>1800)//1800
-            {
-                count=0;
-                if(g_s_duty>g_a_duty)
-                {   
-                  if(g_s_duty>g_a_duty+200&&g_a_duty>200)
-                    g_a_duty+=20;
-                  else                     
-                    g_a_duty++; 
-                  if(g_a_duty>3200)g_a_duty=3200;
-                  {
-                    // CURRENT_UPDATE_DUTY(g_a_duty);
-                    // VOLTAGE_UPDATE_DUTY(g_a_duty);  
-                  }
-                }
-                else
-                {
-                  if((g_s_duty<g_a_duty))
-                  {   
-                      if(g_a_duty>g_s_duty+200&&g_a_duty<3000)
-                        g_a_duty-=20;
-                      else
-                      g_a_duty--;
-                    if(g_a_duty<0)g_a_duty=0;
-                    {
-                      //  CURRENT_UPDATE_DUTY(g_a_duty);
-                      //  VOLTAGE_UPDATE_DUTY(g_a_duty);  
-                    } 
-                  }
-                }
-                CURRENT_UPDATE_DUTY(3200-g_a_duty);//update duty
-                VOLTAGE_UPDATE_DUTY(3200-g_a_duty);  
-                //UPDATE_DUTY(3200-g_a_duty);
-            }
-        }
-         //__halt();     
+{  
+  static uint16_t count=0; 
+  static uint8_t i=0,test_num=0;
+  extern const uint16_t duty_step[51];
+  /* Infinite loop */
+  __disable_interrupt();
+  MCU_Ini();
+  __enable_interrupt();
+  while (1)
+  {   
+    if(i++>250)
+    {
+      WDG_RLOAD;
+      i=0; 
     }
+    if(g_adc_flag)
+    {
+      V_Sample();
+      g_adc_flag=0;
+    }
+
+    if(g_sys_flag)//period 10ms           
+    {    
+      //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+      g_sys_flag=0;
+      Color_data_save();
+    
+     Short_protect();
+      //cct_get_data();
+      /****this is for 200ms 1 1 delay*/
+    }
+   // test_num=40;
+    //g_s_duty=duty_step[test_num];
+    if(count++>1800)//1800
+    {
+      count=0;
+      if(g_a_duty!=g_s_duty)
+      {
+      if(g_s_duty>g_a_duty)
+      {   
+        if(g_s_duty>g_a_duty+50&&g_a_duty>50)
+          g_a_duty+=2;
+        else                     
+          g_a_duty++; 
+        if(g_a_duty>4000)
+          g_a_duty=4000;
+      }
+      else
+      {
+        if((g_s_duty<g_a_duty))
+        {   
+          if(g_a_duty>g_s_duty+50&&g_a_duty<350)
+            g_a_duty-=2;
+          else
+            g_a_duty--;
+          if(g_a_duty<0)g_a_duty=0;
+        }
+      }
+      if(flag==0)
+      {
+      CURRENT_UPDATE_DUTY((799-g_a_duty));//update duty
+      VOLTAGE_UPDATE_DUTY((799-g_a_duty)); 
+      }
+//        CURRENT_UPDATE_DUTY((3200-g_a_duty)>>3);//update duty
+//        VOLTAGE_UPDATE_DUTY((3200-g_a_duty)>>3); 
+        //g_a_duty=200;
+
+      }
+    }    
+  }
 }
 
 

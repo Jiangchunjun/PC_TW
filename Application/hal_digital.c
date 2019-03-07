@@ -21,7 +21,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint8_t g_sys_flag=1;
+uint8_t g_sys_flag=1,g_adc_flag=0;
 uint8_t g_sys_flag1=0;
 uint16_t g_v_arr[1];
 int32_t g_data;
@@ -55,7 +55,115 @@ uint8_t g_flag_uart1=0;
 uint8_t g_flag_cct=0;
 uint16_t g_pluse_count=0;
 uint8_t g_save_flag=0;
-
+uint8_t flag=0;
+uint8_t short_flag=0,short_count=0;
+#ifdef COMP_40KHZ
+const uint16_t duty_step[51]={0	,
+3	,
+4	,
+6	,
+7	,
+9	,
+10	,
+13	,
+15	,
+19	,
+31	,
+45	,
+56	,
+66	,
+76	,
+86	,
+97	,
+108	,
+118	,
+129	,
+140	,
+151	,
+163	,
+174	,
+185	,
+196	,
+207	,
+218	,
+229	,
+241	,
+252	,
+263	,
+274	,
+285	,
+296	,
+306	,
+317	,
+328	,
+338	,
+349	,
+359	,
+376	,
+384	,
+387	,
+390	,
+392	,
+393	,
+395	,
+396	,
+397	,
+399	};
+    
+#else
+const uint16_t duty_step[51]={3	,
+5	,
+9	,
+30	,
+60	,
+85	,
+115	,
+140	,
+165	,
+195	,
+220	,
+245	,
+270	,
+295	,
+325	,
+345	,
+370	,
+390	,
+415	,
+435	,
+455	,
+475	,
+495	,
+515	,
+530	,
+550	,
+565	,
+582	,
+598	,
+610	,
+626	,
+642	,
+655	,
+666	,
+678	,
+693	,
+704	,
+716	,
+726	,
+734	,
+745	,
+757	,
+765	,
+780	,
+785	,
+789	,
+791	,
+792	,
+793	,
+794	,
+795	
+  };
+#endif
 extern uint16_t  test[100];
 extern uint8_t index,g_run_flag,flag_pulse;
 extern uint32_t g_pulse_time1;
@@ -125,6 +233,13 @@ void GPIO_Config(void)
     GPIO_Init(GPIOC,GPIO_PIN_4,GPIO_MODE_OUT_PP_LOW_FAST);  //PWM for voltage loop reference
     
     GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_LOW_FAST);  //PWM for voltage loop reference
+    
+    GPIO_Init(GPIOC,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);  // IO for test
+    
+    GPIO_Init(GPIOD,GPIO_PIN_2,GPIO_MODE_IN_FL_NO_IT);  // IO for test
+     
+    //GPIO_Init(GPIOC,GPIO_PIN_3,GPIO_MODE_OUT_PP_HIGH_FAST);
+    EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//falling edge
 }
 /********************************************************************************/
 
@@ -138,7 +253,8 @@ void MCU_Ini(void)
   Time2_Config();
   UART1_Init(115200,UART1_WORDLENGTH_8D,UART1_STOPBITS_1,UART1_PARITY_NO,UART1_SYNCMODE_CLOCK_DISABLE,UART1_MODE_TXRX_ENABLE);
   UART1_Cmd(ENABLE);
- // IWDG_Config(); 
+  ADC_Config();
+  IWDG_Config(); 
 }
 /******************************************************************************/
 void one_ten_handle(void)
@@ -243,7 +359,7 @@ void ADC_Config(void)
     /* Clear the ADC1 channels */
   ADC1->CSR &= (uint8_t)(~ADC1_CSR_CH);
   /* Select the ADC1 channel */
-  ADC1->CSR |= (uint8_t)(ADC1_CHANNEL_6);
+  ADC1->CSR |= (uint8_t)(ADC1_CHANNEL_3);
   
   ADC1->CR1 &= (uint8_t)(~ADC1_CR1_SPSEL);
   ADC1->CR1 |= (uint8_t)(ADC1_PRESSEL_FCPU_D18);
@@ -252,7 +368,7 @@ void ADC_Config(void)
   ADC1->CR2 &= (uint8_t)(~ADC1_CR2_EXTTRIG);
   ADC1->CR2 |= (uint8_t)(ADC1_EXTTRIG_TIM);
   
-  ADC1->TDRL |= (uint8_t)((uint8_t)0x01 << (uint8_t)ADC1_SCHMITTTRIG_CHANNEL5);
+  ADC1->TDRL |= (uint8_t)((uint8_t)0x01 << (uint8_t)ADC1_SCHMITTTRIG_CHANNEL3);
   
   ADC1->CR1 |= ADC1_CR1_ADON;
   
@@ -300,8 +416,8 @@ void Time1_Config(void)
   TIM1->ARRL = (uint8_t)(TIM1_PERIOD);
   
   /* Set the Prescaler value */
-  TIM1->PSCRH = (uint8_t)(0x1 >> 8);
-  TIM1->PSCRL = (uint8_t)(0x1);
+  TIM1->PSCRH = (uint8_t)(0x0 >> 8);
+  TIM1->PSCRL = (uint8_t)(0x0);
   
   /* Select the Counter Mode */
   TIM1->CR1 = (uint8_t)((uint8_t)(TIM1->CR1 & (uint8_t)(~(TIM1_CR1_CMS | TIM1_CR1_DIR)))
@@ -327,7 +443,7 @@ void Time1_Config(void)
   
   /* Reset the Output Compare Bits & Set the Output Compare Mode */
   TIM1->CCMR3 = (uint8_t)((uint8_t)(TIM1->CCMR3 & (uint8_t)(~TIM1_CCMR_OCM)) | 
-                          (uint8_t)TIM1_OCMODE_PWM1);
+                          (uint8_t)TIM1_OCMODE_PWM1);//TIM1_OCMODE_PWM1
   
   /* Reset the Output Idle state & the Output N Idle state bits */
   TIM1->OISR &= (uint8_t)(~(TIM1_OISR_OIS3 | TIM1_OISR_OIS3N));
@@ -336,9 +452,9 @@ void Time1_Config(void)
                           (uint8_t)(TIM1_OISR_OIS3N & TIM1_OCNIDLESTATE_RESET));
   
   /* Set the Pulse value */
-  TIM1->CCR3H = (uint8_t)(voltage_duty >> 8);
-  TIM1->CCR3L = (uint8_t)(voltage_duty);  
-  TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,3200-g_s_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
+  TIM1->CCR3H = (uint8_t)(400);//g_s_duty
+  TIM1->CCR3L = (uint8_t)(400);  
+  //TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,3200-g_s_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
   
   /* Disable the Channel 4: Reset the CCE Bit */
   TIM1->CCER2 &= (uint8_t)(~(TIM1_CCER2_CC4E | TIM1_CCER2_CC4P));
@@ -348,12 +464,12 @@ void Time1_Config(void)
   
   /* Reset the Output Compare Bit  and Set the Output Compare Mode */
   TIM1->CCMR4 = (uint8_t)((uint8_t)(TIM1->CCMR4 & (uint8_t)(~TIM1_CCMR_OCM)) | 
-                          TIM1_OCMODE_PWM1);
+                          TIM1_OCMODE_PWM1);//TIM1_OCMODE_PWM1
   /* Set the Output Idle state */
   TIM1->OISR |= (uint8_t)(~TIM1_CCER2_CC4P);
   /* Set the Pulse value */
-  TIM1->CCR4H = (uint8_t)((3200-g_s_duty) >> 8);
-  TIM1->CCR4L = (uint8_t)(3200-g_s_duty);
+  TIM1->CCR4H = (uint8_t)(400);//g_s_duty
+  TIM1->CCR4L = (uint8_t)(400);
   //TIM1_OC4Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,current_duty,TIM1_OCPOLARITY_LOW,TIM1_OCIDLESTATE_SET);//HIGH
 #else
    TIM1_OC2Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_ENABLE,voltage_duty,TIM1_OCPOLARITY_HIGH,TIM1_OCNPOLARITY_HIGH,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
@@ -362,7 +478,10 @@ void Time1_Config(void)
   TIM1->CR1 |= TIM1_CR1_CEN;
   //TIM1_Cmd(ENABLE); 
   TIM1->BKR |= TIM1_BKR_MOE;  
-  g_a_duty=g_s_duty;
+  
+  CURRENT_UPDATE_DUTY((400));//update duty
+  VOLTAGE_UPDATE_DUTY((400)); 
+  //g_a_duty=g_s_duty; //test
   //TIM1_CtrlPWMOutputs(ENABLE);  
 }
 /******************************************************************************/
@@ -407,12 +526,16 @@ void V_Sample(void)
   s_data_5=s_data_6;
   s_data_6=s_data_7;
   s_data_7=s_data_8;
-  s_data_8=get_adc_result(6); // Voltage for 1-10V voltage
+  s_data_8=get_adc_result(3); // Voltage for 1-10V voltage
+  if(s_data_8<20&&g_data>1500)
+  {
+    short_count++;
+  }
   s_data_8&=0X3FF;
   g_v_arr[0]=((s_data_1+s_data_2+s_data_3+s_data_4+s_data_5+s_data_6+s_data_7+s_data_8)>>0);//3
   //g_v_arr[0]=340;
   temp1 =g_v_arr[0];//
-  temp2 += (((temp1<<10)- temp2)>>5);
+  temp2 += (((temp1<<10)- temp2)>>1);
   g_data = temp2>>10;
  
 }
@@ -697,7 +820,9 @@ void dimming_judge(void)
   temp=FLASH_ReadByte(DIMMING_PERCENT);       
   temp1=temp;
   g_record_color_data=temp;
-  g_s_duty=(uint32_t)(temp1*3200/50); 
+  g_s_duty=duty_step[temp];
+  if(g_s_duty>799)
+    g_s_duty=799;
 }
 /******************************************************************************/
 void power_down(void)
@@ -1270,15 +1395,19 @@ void Color_data_save(void)
    uint8_t data_1=0;
    extern uint16_t period_time;
    if(save_count++>150)
-   {   
-     if(g_s_color_data!=g_record_color_data&&g_save_flag==1&&flag_pulse==0)
-     {
-       g_record_color_data=g_s_color_data;
-       save_count=0;
-       g_save_flag=0;
-       FLASH_Unlock(FLASH_MEMTYPE_DATA);
-       FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)g_record_color_data);
-       FLASH_Lock(FLASH_MEMTYPE_DATA);
+   {
+     save_count=150;
+     if(g_data<=2000)//1V power off
+     {   
+       if(g_s_color_data!=g_record_color_data&&g_save_flag==1&&flag_pulse==0)
+       {
+         g_record_color_data=g_s_color_data;
+         save_count=0;
+         g_save_flag=0;
+         FLASH_Unlock(FLASH_MEMTYPE_DATA);
+         FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)g_record_color_data);
+         FLASH_Lock(FLASH_MEMTYPE_DATA);
+       }
      }
    }
    //g_pluse_count++;
@@ -1475,8 +1604,68 @@ void cct_get_data(void)
 //    g_s_duty/=50;
 //    g_flag_uart=1;
 //    g_save_flag=1;
-    g_run_flag=0;
    //UART1_SendData8((data>>4));
   }
+}
+
+void Short_protect(void)
+{
+  static uint8_t delay=0; 
+  static uint16_t count=0,short_time=0;
+  
+  {
+    if(delay++>200)
+    { 
+      if(delay==201)
+      {
+        short_count=0;
+      }
+      delay=202;
+      
+      if(short_time++>50)
+      {
+        short_time=0;
+        
+        if(short_count>10&&short_flag==0)
+        {
+          short_flag=1;
+        }
+        short_count=0;
+      }
+      if(short_flag==1)//g_data<2000&&flag==0||
+      {
+        flag=1; 
+      }
+      
+      if(flag==1)
+      {
+        CURRENT_UPDATE_DUTY((799));//update duty
+        VOLTAGE_UPDATE_DUTY((0));
+        flag=2;
+      }
+      
+      if(flag==2)
+      {
+        if(count++>50)//close 2s
+        {
+          count=0;
+          flag=3;
+          CURRENT_UPDATE_DUTY((g_a_duty));//update duty
+          VOLTAGE_UPDATE_DUTY((g_a_duty));
+        }
+      }
+      if(flag==3)
+      {
+        if(count++>200)
+        {
+          count=0;
+          flag=0;
+          short_flag=0;
+        }
+      }
+    }
+  
+  }
+
 }
 /******************************************************************************/

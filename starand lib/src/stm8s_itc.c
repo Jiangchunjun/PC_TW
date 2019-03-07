@@ -38,10 +38,10 @@ extern uint16_t ad_arr[30];
 extern uint32_t ad_sum;
 extern int32_t  g_s_duty;
 extern uint16_t ad_ac_low,g_pluse_count;
+extern const uint16_t duty_step[51];
 extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;
 uint8_t count_flag=0,flag_pulse=0,noise_flag=0,l=0,index=0,g_run_flag=0;
 uint16_t data=0;
-uint32_t count_pre=0,pre_time=0;
 uint16_t test[100],period_time=600;
 uint8_t mos_flag=0; //mos_control
 uint32_t g_pulse_time1=0,g_pulse_time2=0;
@@ -166,81 +166,73 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
   /* In order to detect unexpected events during development,
   it is recommended to set a breakpoint on the following instruction.
   */
-  static uint8_t count_s=0;
   uint32_t temp=0;
-  if(1)
+  
+  g_pluse_count=g_pulse_time1;
+  
+  if(g_pulse_time1>g_pulse_time2)
   {
-    g_pluse_count=g_pulse_time1;
-    //g_flag_uart1=1;
-//    g_pluse_count++;
-//    g_flag_uart1=1; // print pluse count 
-//    if(flag_pulse==0)
-//    {
-//      count_flag=1;
-//      flag_pulse=2;
-//    }
-//    else
+    temp=g_pulse_time1-g_pulse_time2;
+  }
+  else
+  {
+    temp=0XFFFFFFFF-g_pulse_time2+g_pulse_time1;
+  }
+  
+  if(temp>=100)//10 two pluse time need to more than 20ms
+  {
+    if(temp>250&&temp<350)//20ms judge
     {
-      if(g_pulse_time1-g_pulse_time2>=100)//10 two pluse time need to more than 20ms
+      //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
+      if(flag_pulse!=1)
       {
-        //g_pluse_count++;
-        temp=g_pulse_time1-g_pulse_time2;
-//        g_pluse_count=temp;
-        if(temp>250&&temp<350)//20ms judge
-        {
-//          GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
-          if(flag_pulse!=1)
-          {
-            flag_pulse=1;//start bit
-            period_time=450; //get period
-            count_flag=1;
-            g_on_time=0;
-            //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
-           
-          }
-          else
-          {
-            flag_pulse=0;
-            period_time=0;// unexpected 20ms
-            count_flag=0;
-            g_on_time=0;
-            GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
-          }
-        }
-        else
-        {
-          if(flag_pulse==1)// have 20ms
-          {
-            if(temp>300)
-            {
-            data|=(1<<(9-(g_on_time/(430)-1)));//period_time-10
-            test[l++]=g_on_time;
-            index=l;
-            if(l>10)l=0;
-            //g_flag_uart1=1;
-//            GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
-//            GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
-            }
-
-          }
-          else
-          {
-            flag_pulse=0;
-            period_time=0;// unexpected 20ms
-            count_flag=0;
-            g_on_time=0;
-          }
-          
-        }
+        flag_pulse=1;//start bit
+        period_time=450; //get period
+        count_flag=1;
+        g_on_time=0;
+        //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);       
       }
       else
       {
+        flag_pulse=0;
+        period_time=0;// unexpected 20ms
+        count_flag=0;
+        g_on_time=0;
         //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
       }
-      g_pulse_time2=g_pulse_time1;
+    }
+    else
+    {
+      if(flag_pulse==1)// have 20ms
+      {
+        if(temp>300)
+        {
+          data|=(1<<(9-(g_on_time/(430)-1)));//period_time-10
+          test[l++]=g_on_time;
+          index=l;
+          if(l>10)l=0;
+          //g_flag_uart1=1;
+          //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+          //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
+        }    
+      }
+      else
+      {
+        flag_pulse=0;
+        period_time=0;// no start bit reset count value
+        count_flag=0;
+        g_on_time=0;
+      }
+      
+    }
   }
+  else
+  {
+    //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
+  }
+  g_pulse_time2=g_pulse_time1; 
 }
-}
+
 
 /**
   * @brief External Interrupt PORTE Interrupt routine.
@@ -384,71 +376,66 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   it is recommended to set a breakpoint on the following instruction.
   */
 #if EXTERN_INTERRUPT	
-  static uint16_t sys_count=0;
-  static uint8_t count=0;
-  static  u16 pre_duty=0;
-  static  u16 count_s=0,count_r=0;
-  static  u32 temp=0;
+  static uint16_t sys_count=0,ad_count=0;
   extern uint8_t g_s_color_data;
   
+  uint32_t temp_data=0;
+  uint8_t data_low_bit,check_sum;
   
-  nop();  
   g_pulse_time1++;
+  
   if(count_flag)
   {
     g_on_time++;
   }
+  
   if(g_on_time>(10*(450)+100))//150-->10ms  period_time
   {
-    g_run_flag=1;
     g_flag_cct=1;//time to update cct
     //g_flag_uart=1;
-    //g_pulse_time1=0;
-    //g_pulse_time2=0;
-    count_pre=(data>>4);
-    flag_pulse=0;
-    u8 k,p;
-    k=count_pre&0X000F;
-    p=~k;
-    k=p&0X0F;
-    p=data&0X000F;
-    if(k==p)//need to update
+    temp_data=(data>>4); 
+
+    data_low_bit=temp_data&0X000F; // get last 4 bit
+    check_sum=~data_low_bit;       // reverse data
+    data_low_bit=check_sum&0X0F;   // get 4 bit
+    check_sum=data&0X000F;         // get check sum
+    if(check_sum==data_low_bit)    // check check sum
     {
-      if(count_pre>0X3F)
-        count_pre=0X3F;
-      if(count_pre<1)
-        count_pre=1;
-      g_s_color_data=(count_pre-1);
-      g_s_duty=3200*(count_pre-1);
-      g_s_duty/=50;
-      pre_duty=g_s_duty; 
+      if(temp_data>0X3F)
+        temp_data=0X3F;
+      if(temp_data<1)
+        temp_data=1;
+      g_s_color_data=(temp_data-1);
+//      g_s_duty=3200*(temp_data-1);
+//      g_s_duty/=50;
+      g_s_duty=duty_step[temp_data-1];
       g_flag_uart=1;
-      count_r++;
       g_save_flag=1;
     }
     else
     {
       //g_flag_uart1=3;
-      count_s++;
-      GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
+     // GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error check sum is not right
 //       GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
 //       GPIO_WriteReverse(GPIOD,GPIO_PIN_2);
     }
     l=0;
-    pre_time=0;
     flag_pulse=0;
     g_on_time=0;
     count_flag=0;
     data=0;
-   //g_run_flag=0;
-    
+   //g_run_flag=0;  
   } 
-  
   if(sys_count++>=SYSTICK_TIME)//79//49
   { 
     sys_count=0;     
     g_sys_flag=1; 
-  }	 
+  }
+  if(ad_count++>14)
+  {
+    g_adc_flag=1;
+    ad_count=0;
+  }
   TIM2->SR1&=(~(0x01));// clear flag
 
 #endif

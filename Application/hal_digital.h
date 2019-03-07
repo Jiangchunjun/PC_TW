@@ -39,6 +39,10 @@
 
 #define UPDATE_DUTY(a)   TIM1_SetCompare2(a)//4
 
+
+    
+    
+    
 /* 00 ----> DW*/ 
 /* 01 ---->Flick short*/
 /* 10 ---->Flick 3 times*/
@@ -71,8 +75,9 @@ void power_reset(void);
 void Fast_tune();
 void dimming_judge();
 void DW_handle(void);
+void Short_protect(void);
 int abs1(int i);
-extern uint8_t g_sys_flag,g_sys_flag1,identify_flag;
+extern uint8_t g_sys_flag,g_sys_flag1,identify_flag,g_adc_flag;
 extern uint8_t MotorIndex;
 extern uint8_t g_box_s_flag,g_led_handle_id;
 extern uint16_t g_period,g_s_s_duty;

@@ -2214,7 +2214,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$TOOLKIT_DIR$\config\lnkstm8s103k3.icf</state>
+                    <state>$TOOLKIT_DIR$\config\lnkstm8l051f3.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -2487,6 +2487,9 @@
                 <name>$PROJ_DIR$\starand lib\src\stm8s_itc.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\starand lib\src\stm8s_iwdg.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\starand lib\src\stm8s_tim1.c</name>
             </file>
             <file>
@@ -2494,9 +2497,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\starand lib\src\stm8s_uart1.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\starand lib\src\stm8s_wwdg.c</name>
             </file>
         </group>
     </group>

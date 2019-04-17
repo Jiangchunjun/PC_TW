@@ -41,7 +41,7 @@ extern uint16_t data;
 void main(void)
 {  
   static uint16_t count=0; 
-  static uint8_t i=0,test_num=0;
+  static uint8_t i=0,test_num=0,time=0;
   extern const uint16_t duty_step[51];
   /* Infinite loop */
   __disable_interrupt();
@@ -59,48 +59,57 @@ void main(void)
       V_Sample();
       g_adc_flag=0;
     }
-
     if(g_sys_flag)//period 10ms           
-    {    
-      //GPIO_WriteReverse(GPIOC,GPIO_PIN_7);
+    {
       g_sys_flag=0;
-      Color_data_save();
-    
-     Short_protect();
+      Color_data_save();  
+      Short_protect();
       //cct_get_data();
       /****this is for 200ms 1 1 delay*/
     }
-   // test_num=40;
-    //g_s_duty=duty_step[test_num];
     if(count++>1800)//1800
     {
       count=0;
       if(g_a_duty!=g_s_duty)
       {
-      if(g_s_duty>g_a_duty)
-      {   
-        if(g_s_duty>g_a_duty+50&&g_a_duty>50)
-          g_a_duty+=2;
-        else                     
-          g_a_duty++; 
-        if(g_a_duty>4000)
-          g_a_duty=4000;
-      }
-      else
-      {
-        if((g_s_duty<g_a_duty))
+        if(g_s_duty>g_a_duty)
         {   
-          if(g_a_duty>g_s_duty+50&&g_a_duty<350)
-            g_a_duty-=2;
-          else
-            g_a_duty--;
-          if(g_a_duty<0)g_a_duty=0;
+          if(g_s_duty>g_a_duty+50&&g_a_duty>50)
+            g_a_duty+=3;
+          else                     
+            g_a_duty++; 
+          if(g_a_duty>4000)
+            g_a_duty=4000;
         }
-      }
+        else
+        {
+          if((g_s_duty<g_a_duty))
+          {   
+            if(g_a_duty>g_s_duty+50&&g_a_duty<350)
+              g_a_duty-=3;
+            else
+              g_a_duty--;
+            if(g_a_duty<0)g_a_duty=0;
+          }
+        }
       if(flag==0)
       {
-      CURRENT_UPDATE_DUTY((799-g_a_duty));//update duty
-      VOLTAGE_UPDATE_DUTY((799-g_a_duty)); 
+//        if(g_a_duty>795)
+//        {
+//          CURRENT_UPDATE_DUTY((799-g_a_duty));//update duty
+//          VOLTAGE_UPDATE_DUTY((0)); 
+//        }
+//        else
+//          if(g_a_duty<3)
+//          {
+//            CURRENT_UPDATE_DUTY((800));//update duty
+//            VOLTAGE_UPDATE_DUTY((799-g_a_duty)); 
+//          }
+//        else
+        {
+          CURRENT_UPDATE_DUTY((799-g_a_duty)<<0);//update duty
+          VOLTAGE_UPDATE_DUTY((799-g_a_duty)<<0); 
+        }
       }
 //        CURRENT_UPDATE_DUTY((3200-g_a_duty)>>3);//update duty
 //        VOLTAGE_UPDATE_DUTY((3200-g_a_duty)>>3); 

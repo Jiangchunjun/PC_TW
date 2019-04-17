@@ -111,7 +111,7 @@ const uint16_t duty_step[51]={0	,
 399	};
     
 #else
-const uint16_t duty_step[51]={3	,
+const uint16_t duty_step[51]={4	,
 5	,
 9	,
 30	,
@@ -160,8 +160,8 @@ const uint16_t duty_step[51]={3	,
 791	,
 792	,
 793	,
-794	,
-795	
+794	, //794
+795	   //795
   };
 #endif
 extern uint16_t  test[100];
@@ -527,7 +527,7 @@ void V_Sample(void)
   s_data_6=s_data_7;
   s_data_7=s_data_8;
   s_data_8=get_adc_result(3); // Voltage for 1-10V voltage
-  if(s_data_8<20&&g_data>1500)
+  if(s_data_8<130&&g_data>1500)//130 10W 1.05
   {
     short_count++;
   }
@@ -1610,19 +1610,19 @@ void cct_get_data(void)
 
 void Short_protect(void)
 {
-  static uint8_t delay=0; 
+  static uint16_t delay=0; 
   static uint16_t count=0,short_time=0;
   
   {
     if(delay++>200)
     { 
-      if(delay==201)
+      if(delay==202)
       {
         short_count=0;
       }
-      delay=202;
+      delay=203;
       
-      if(short_time++>50)
+      if(short_time++>200)
       {
         short_time=0;
         

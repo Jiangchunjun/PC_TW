@@ -57,6 +57,7 @@ uint16_t g_pluse_count=0;
 uint8_t g_save_flag=0;
 uint8_t flag=0;
 uint8_t short_flag=0,short_count=0;
+uint16_t wirte_count=0;
 #ifdef COMP_40KHZ
 const uint16_t duty_step[51]={0	,
 3	,
@@ -815,14 +816,26 @@ void PWM1_update(void)
 void dimming_judge(void)
 {
   static uint8_t temp=0;
-  uint32_t temp1=0;
+  uint16_t temp1=0;
   
   temp=FLASH_ReadByte(DIMMING_PERCENT);       
-  temp1=temp;
+  //temp1=temp;
   g_record_color_data=temp;
   g_s_duty=duty_step[temp];
   if(g_s_duty>799)
     g_s_duty=799;
+  temp=FLASH_ReadByte(POWER_COUNT);  
+  
+  wirte_count=temp;
+  
+  temp=FLASH_ReadByte(POWER_COUNT+1);
+  
+  temp1=temp;
+  
+  wirte_count+=(temp1<<8);
+  
+  if(wirte_count==0XFFFF)
+    wirte_count=0;
 }
 /******************************************************************************/
 void power_down(void)
@@ -1404,8 +1417,15 @@ void Color_data_save(void)
          g_record_color_data=g_s_color_data;
          save_count=0;
          g_save_flag=0;
+         
+         wirte_count++;
+         
          FLASH_Unlock(FLASH_MEMTYPE_DATA);
          FLASH_ProgramByte(DIMMING_PERCENT,(uint8_t)g_record_color_data);
+         
+         FLASH_ProgramByte(POWER_COUNT,(uint8_t)wirte_count);
+         
+         FLASH_ProgramByte(POWER_COUNT+1,(uint8_t)(wirte_count>>8));
          FLASH_Lock(FLASH_MEMTYPE_DATA);
        }
      }

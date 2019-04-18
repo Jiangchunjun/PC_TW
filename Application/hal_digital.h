@@ -29,7 +29,7 @@
 #define DIM_MAX_PERCENT   (1000)
 #define DIM_MIN_PERCENT   (100)        
 #define DIMMING_FLAG       0X4000
-#define POWER_COUNT        0X4003
+#define POWER_COUNT        0X4005
 #define DIMMING_PERCENT    0X4002
 #define MODE_UPDATE GPIO_ReadInputPin(GPIOA,GPIO_PIN_2)
 #define MODE_LEAD GPIO_ReadInputPin(GPIOA,GPIO_PIN_1)

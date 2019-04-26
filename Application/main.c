@@ -107,8 +107,13 @@ void main(void)
 //          }
 //        else
         {
+#ifdef PMW_2K5
+          CURRENT_UPDATE_DUTY((799-g_a_duty)<<4);//update duty
+          VOLTAGE_UPDATE_DUTY((799-g_a_duty)<<4); 
+#else
           CURRENT_UPDATE_DUTY((799-g_a_duty)<<0);//update duty
           VOLTAGE_UPDATE_DUTY((799-g_a_duty)<<0); 
+#endif 
         }
       }
 //        CURRENT_UPDATE_DUTY((3200-g_a_duty)>>3);//update duty

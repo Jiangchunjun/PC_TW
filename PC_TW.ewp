@@ -1795,6 +1795,7 @@
                     <state>OT_TW_40W</state>
                     <state>EXTERN_INTERRUPT</state>
                     <state>DEAD_TIME1</state>
+                    <state>PMW_2K5</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -2214,7 +2215,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$TOOLKIT_DIR$\config\lnkstm8l051f3.icf</state>
+                    <state>$TOOLKIT_DIR$\config\lnkstm8s103k3.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>

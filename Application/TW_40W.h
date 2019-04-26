@@ -17,7 +17,13 @@
 #define SYSTICK_TIME 150   //10ms systick
 #define START_UP_DELAY 0 //300 ms
 #define PWM_SLOW_FLAG  0  // no PWM update
-#define TIM1_PERIOD   799//(3200*4-1)  //5Khz
+#ifdef PMW_2K5
+
+#define TIM1_PERIOD   12800//(3200*4-1)  //2k5Khz
+#else
+#define TIM1_PERIOD   799//(3200*4-1)  //40Khz
+#endif
+
 #define CURVE_A 6222//(5815)
 #define CURVE_B  21//(211) //(*128)
 #define DELAY_TIME  2//20ms  

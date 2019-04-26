@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <fileVersion>2</fileVersion>
-    <fileChecksum>3748701637</fileChecksum>
+    <fileChecksum>2258571312</fileChecksum>
     <configuration>
         <name>Debug</name>
         <outputs>
@@ -564,7 +564,7 @@
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 85 79 50 61 16 71 63 87 42 60 77 57 82 75 86 84 49 59 55 53 54 83 78</file>
+                    <file> 85 79 50 61 16 71 63 87 42 60 84 77 57 82 75 86 49 59 55 53 54 78 83</file>
                 </tool>
             </inputs>
         </file>
@@ -780,7 +780,7 @@
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 37 85 79 50 61 58 78 16 71 63 12 74 56 77 38 87 42 60 55 41 57 82 75 86 84 49 59 53 54 51 52 65</file>
+                    <file> 79 37 84 57 53 58 78 75 59 12 74 56 77 38 82 86 49 55 54 41 50 16 87 85 42 71 60 61 63 51 52 65</file>
                 </tool>
             </inputs>
         </file>
@@ -807,7 +807,7 @@
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 74 42 79 38 55 87 60 37 56 50 16 85 71 61 63 51 65 77 84 78 57 82 75 86 49 59 53 54 12 52 41 58</file>
+                    <file> 74 49 82 54 38 78 86 55 79 37 56 84 57 75 59 53 51 65 77 50 16 87 85 42 71 60 61 63 12 52 41 58</file>
                 </tool>
             </inputs>
         </file>
@@ -820,5 +820,53 @@
                 </tool>
             </outputs>
         </file>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_adc1.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_uart1.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_itc.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_tim1.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_gpio.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_iwdg.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_tim2.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_flash.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_exti.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\starand lib\src\stm8s_clk.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\Application\main.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\Application\hal_digital.c</name>
+            <tool>ICCSTM8</tool>
+        </forcedrebuild>
     </configuration>
 </project>

@@ -453,8 +453,13 @@ void Time1_Config(void)
                           (uint8_t)(TIM1_OISR_OIS3N & TIM1_OCNIDLESTATE_RESET));
   
   /* Set the Pulse value */
+#ifdef PMW_2K5
+  TIM1->CCR3H = (uint8_t)(6400);//g_s_duty
+  TIM1->CCR3L = (uint8_t)(6400);  
+#else
   TIM1->CCR3H = (uint8_t)(400);//g_s_duty
   TIM1->CCR3L = (uint8_t)(400);  
+#endif 
   //TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,3200-g_s_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
   
   /* Disable the Channel 4: Reset the CCE Bit */
@@ -469,8 +474,13 @@ void Time1_Config(void)
   /* Set the Output Idle state */
   TIM1->OISR |= (uint8_t)(~TIM1_CCER2_CC4P);
   /* Set the Pulse value */
+#ifdef PMW_2K5
+  TIM1->CCR4H = (uint8_t)(6400);//g_s_duty
+  TIM1->CCR4L = (uint8_t)(6400);
+#else
   TIM1->CCR4H = (uint8_t)(400);//g_s_duty
   TIM1->CCR4L = (uint8_t)(400);
+#endif
   //TIM1_OC4Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,current_duty,TIM1_OCPOLARITY_LOW,TIM1_OCIDLESTATE_SET);//HIGH
 #else
    TIM1_OC2Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_ENABLE,voltage_duty,TIM1_OCPOLARITY_HIGH,TIM1_OCNPOLARITY_HIGH,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
@@ -479,9 +489,13 @@ void Time1_Config(void)
   TIM1->CR1 |= TIM1_CR1_CEN;
   //TIM1_Cmd(ENABLE); 
   TIM1->BKR |= TIM1_BKR_MOE;  
-  
+#ifdef PMW_2K5  
   CURRENT_UPDATE_DUTY((400));//update duty
   VOLTAGE_UPDATE_DUTY((400)); 
+#else
+  CURRENT_UPDATE_DUTY((6400));//update duty
+  VOLTAGE_UPDATE_DUTY((6400)); 
+#endif
   //g_a_duty=g_s_duty; //test
   //TIM1_CtrlPWMOutputs(ENABLE);  
 }
@@ -528,7 +542,7 @@ void V_Sample(void)
   s_data_6=s_data_7;
   s_data_7=s_data_8;
   s_data_8=get_adc_result(3); // Voltage for 1-10V voltage
-  if(s_data_8<130&&g_data>1500)//130 10W 1.05
+  if(s_data_8<130&&g_data>1500)//130 10W and 40W 0.63V
   {
     short_count++;
   }

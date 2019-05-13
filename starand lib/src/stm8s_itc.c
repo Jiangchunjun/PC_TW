@@ -40,6 +40,7 @@ extern int32_t  g_s_duty;
 extern uint16_t ad_ac_low,g_pluse_count;
 extern const uint16_t duty_step[51];
 extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;
+extern uint8_t g_test_io;
 uint8_t count_flag=0,flag_pulse=0,noise_flag=0,l=0,index=0,g_run_flag=0;
 uint16_t data=0;
 uint16_t test[100],period_time=600;
@@ -411,6 +412,10 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
       g_s_duty=duty_step[temp_data-1];
       g_flag_uart=1;
       g_save_flag=1;
+#ifdef TEST_FW
+      GPIO_WriteHigh(GPIOA,GPIO_PIN_1);
+      g_test_io=1;
+#endif
     }
     else
     {

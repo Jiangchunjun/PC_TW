@@ -36,15 +36,16 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 uint16_t g_period=0, g_on_time=0;
+uint8_t g_test_io=0;
 extern uint8_t g_dimming_flag, g_mode,flag,g_adc_flag;
 extern uint16_t data;
 void main(void)
 {  
   static uint16_t count=0; 
-  static uint8_t i=0,test_num=0,time=0;
+  static uint8_t i=0,test_num=0,test_cct=0;
   extern const uint16_t duty_step[51];
   /* Infinite loop */
-  __disable_interrupt();
+  ;__disable_interrupt();
   MCU_Ini();
   __enable_interrupt();
   while (1)
@@ -64,6 +65,20 @@ void main(void)
       g_sys_flag=0;
       Color_data_save();  
       Short_protect();
+#ifdef TEST_CCT
+      
+      g_s_duty=duty_step[test_cct];
+#endif
+#ifdef TEST_FW
+      if(g_test_io>0)
+      {
+        if(g_test_io++>1)
+        {
+          g_test_io=0;
+          GPIO_WriteLow(GPIOA,GPIO_PIN_1);
+        }
+      }
+#endif      
       //cct_get_data();
       /****this is for 200ms 1 1 delay*/
     }

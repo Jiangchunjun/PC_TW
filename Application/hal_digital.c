@@ -241,6 +241,12 @@ void GPIO_Config(void)
      
     //GPIO_Init(GPIOC,GPIO_PIN_3,GPIO_MODE_OUT_PP_HIGH_FAST);
     EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOD, EXTI_SENSITIVITY_FALL_ONLY);//falling edge
+    
+#ifdef TEST_FW
+    
+     GPIO_Init(GPIOA,GPIO_PIN_1,GPIO_MODE_OUT_PP_LOW_FAST);
+     
+#endif
 }
 /********************************************************************************/
 

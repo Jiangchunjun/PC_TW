@@ -1795,7 +1795,9 @@
                     <state>OT_TW_40W</state>
                     <state>EXTERN_INTERRUPT</state>
                     <state>DEAD_TIME1</state>
-                    <state>PMW_2K5</state>
+                    <state>PMW_2K51</state>
+                    <state>TEST_CCT1</state>
+                    <state>TEST_FW</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

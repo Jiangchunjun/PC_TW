@@ -35,9 +35,9 @@
 #define OPTION_ADDRESS 0X4803
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-uint16_t g_period=0, g_on_time=0;
+uint16_t g_period=0, g_on_time=0,g_test_duty;
 uint8_t g_test_io=0;
-extern uint8_t g_dimming_flag, g_mode,flag,g_adc_flag;
+extern uint8_t g_dimming_flag, g_mode,flag,g_adc_flag,g_interrupt_flag;
 extern uint16_t data;
 void main(void)
 {  
@@ -45,7 +45,7 @@ void main(void)
   static uint8_t i=0,test_num=0,test_cct=0;
   extern const uint16_t duty_step[51];
   /* Infinite loop */
-  ;__disable_interrupt();
+  __disable_interrupt();
   MCU_Ini();
   __enable_interrupt();
   while (1)
@@ -64,7 +64,9 @@ void main(void)
     {
       g_sys_flag=0;
       Color_data_save();  
+#ifdef TW_SHORT
       Short_protect();
+#endif
 #ifdef TEST_CCT
       
       g_s_duty=duty_step[test_cct];
@@ -82,26 +84,45 @@ void main(void)
       //cct_get_data();
       /****this is for 200ms 1 1 delay*/
     }
-    if(count++>1800)//1800
+#ifdef TW_10W
+    if(count++>1800)//1800//
+#else
+     if(count++>1800)//1800// 
+#endif
     {
       count=0;
       if(g_a_duty!=g_s_duty)
       {
         if(g_s_duty>g_a_duty)
         {   
+#ifdef PMW_2K5
+          if(g_s_duty>g_a_duty+30&&g_a_duty>30)
+            g_a_duty+=26;//3
+#else     
           if(g_s_duty>g_a_duty+50&&g_a_duty>50)
             g_a_duty+=3;
+#endif
           else                     
             g_a_duty++; 
-          if(g_a_duty>4000)
-            g_a_duty=4000;
+#ifdef    PMW_2K5
+          if(g_a_duty>12799)
+            g_a_duty=12799;
+#else
+          if(g_a_duty>799)
+            g_a_duty=799;
+#endif
         }
         else
         {
           if((g_s_duty<g_a_duty))
           {   
-            if(g_a_duty>g_s_duty+50&&g_a_duty<350)
+#ifdef PMW_2K5
+            if(g_a_duty>g_s_duty+30&&g_a_duty<12770)
+              g_a_duty-=26;//3
+#else
+            if(g_a_duty>g_s_duty+50&&g_a_duty<50)
               g_a_duty-=3;
+#endif
             else
               g_a_duty--;
             if(g_a_duty<0)g_a_duty=0;
@@ -123,8 +144,15 @@ void main(void)
 //        else
         {
 #ifdef PMW_2K5
-          CURRENT_UPDATE_DUTY((799-g_a_duty)<<4);//update duty
-          VOLTAGE_UPDATE_DUTY((799-g_a_duty)<<4); 
+#ifdef TW_18W
+          CURRENT_UPDATE_DUTY((g_a_duty)<<0);//update duty
+          VOLTAGE_UPDATE_DUTY((g_a_duty)<<0); 
+          
+#else
+          CURRENT_UPDATE_DUTY((12799-g_a_duty)<<0);//update duty
+          VOLTAGE_UPDATE_DUTY((12799-g_a_duty)<<0); 
+#endif
+          
 #else
           CURRENT_UPDATE_DUTY((799-g_a_duty)<<0);//update duty
           VOLTAGE_UPDATE_DUTY((799-g_a_duty)<<0); 

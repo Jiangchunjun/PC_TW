@@ -58,6 +58,7 @@ uint8_t g_save_flag=0;
 uint8_t flag=0;
 uint8_t short_flag=0,short_count=0;
 uint16_t wirte_count=0;
+uint8_t g_interrupt_flag=0;
 #ifdef COMP_40KHZ
 const uint16_t duty_step[51]={0	,
 3	,
@@ -112,58 +113,113 @@ const uint16_t duty_step[51]={0	,
 399	};
     
 #else
-const uint16_t duty_step[51]={4	,
-5	,
-9	,
-30	,
-60	,
-85	,
-115	,
-140	,
-165	,
-195	,
-220	,
-245	,
-270	,
-295	,
-325	,
-345	,
-370	,
-390	,
-415	,
-435	,
-455	,
-475	,
-495	,
-515	,
-530	,
-550	,
-565	,
-582	,
-598	,
-610	,
-626	,
-642	,
-655	,
-666	,
-678	,
-693	,
-704	,
-716	,
-726	,
-734	,
-745	,
-757	,
-765	,
-780	,
-785	,
-789	,
-791	,
-792	,
-793	,
-794	, //794
-795	   //795
+#ifdef TW_10_0
+const uint16_t duty_step[51]={16	,
+400	,
+880	,
+1344	,
+1776	,
+2208	,
+2592	,
+3008	,
+3392	,
+3792	,
+4128	,
+4480	,
+4800	,
+5120	,
+5456	,
+5776	,
+6096	,
+6368	,
+6656	,
+6944	,
+7232	,
+7504	,
+7760	,
+8032	,
+8272	,
+8512	,
+8752	,
+8992	,
+9216	,
+9440	,
+9664	,
+9872	,
+10080	,
+10288	,
+10464	,
+10640	,
+10848	,
+11072	,
+11232	,
+11392	,
+11552	,
+11712	,
+11872	,
+12032	,
+12192	,
+12352	,
+12528	,
+12672	,
+12736	,
+12787	,
+12799	
+};
+#else
+const uint16_t duty_step[51]={0	,
+224	,
+447	,
+870	,
+1263	,
+1661	,
+2054	,
+2420	,
+2777	,
+3136	,
+3481	,
+3817	,
+4140	,
+4465	,
+4760	,
+5068	,
+5375	,
+5635	,
+5950	,
+6240	,
+6500	,
+6760	,
+7030	,
+7294	,
+7540	,
+7780	,
+8018	,
+8260	,
+8510	,
+8700	,
+8900	,
+9133	,
+9350	,
+9533	,
+9736	,
+9933	,
+10133	,
+10338	,
+10530	,
+10720	,
+10904	,
+11080	,
+11316	,
+11464	,
+11630	,
+11796	,
+12050	,
+12250	,
+12400	,
+12577	,
+12799	
   };
+#endif
 #endif
 extern uint16_t  test[100];
 extern uint8_t index,g_run_flag,flag_pulse;
@@ -460,10 +516,10 @@ void Time1_Config(void)
   
   /* Set the Pulse value */
 #ifdef PMW_2K5
-  TIM1->CCR3H = (uint8_t)(6400);//g_s_duty
-  TIM1->CCR3L = (uint8_t)(6400);  
+  TIM1->CCR3H = (uint8_t)(g_s_duty>>8);//g_s_duty
+  TIM1->CCR3L = (uint8_t)(g_s_duty);  
 #else
-  TIM1->CCR3H = (uint8_t)(400);//g_s_duty
+  TIM1->CCR3H = (uint8_t)(400>>8);//g_s_duty
   TIM1->CCR3L = (uint8_t)(400);  
 #endif 
   //TIM1_OC3Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,TIM1_OUTPUTNSTATE_DISABLE,3200-g_s_duty,TIM1_OCPOLARITY_LOW,TIM1_OCNPOLARITY_LOW,TIM1_OCIDLESTATE_SET,TIM1_OCNIDLESTATE_RESET);//HIGH
@@ -481,10 +537,10 @@ void Time1_Config(void)
   TIM1->OISR |= (uint8_t)(~TIM1_CCER2_CC4P);
   /* Set the Pulse value */
 #ifdef PMW_2K5
-  TIM1->CCR4H = (uint8_t)(6400);//g_s_duty
-  TIM1->CCR4L = (uint8_t)(6400);
+  TIM1->CCR4H = (uint8_t)(g_s_duty>>8);//g_s_duty
+  TIM1->CCR4L = (uint8_t)(g_s_duty);
 #else
-  TIM1->CCR4H = (uint8_t)(400);//g_s_duty
+  TIM1->CCR4H = (uint8_t)(400>>8);//g_s_duty
   TIM1->CCR4L = (uint8_t)(400);
 #endif
   //TIM1_OC4Init(TIM1_OCMODE_PWM1,TIM1_OUTPUTSTATE_ENABLE,current_duty,TIM1_OCPOLARITY_LOW,TIM1_OCIDLESTATE_SET);//HIGH
@@ -496,11 +552,24 @@ void Time1_Config(void)
   //TIM1_Cmd(ENABLE); 
   TIM1->BKR |= TIM1_BKR_MOE;  
 #ifdef PMW_2K5  
-  CURRENT_UPDATE_DUTY((400));//update duty
-  VOLTAGE_UPDATE_DUTY((400)); 
+#ifdef START_PWM
+#ifdef TW_18W
+  CURRENT_UPDATE_DUTY((g_s_duty)<<0);//update duty
+  VOLTAGE_UPDATE_DUTY((g_s_duty)<<0); 
+#else
+  CURRENT_UPDATE_DUTY((12799-g_s_duty)<<0);//update duty
+  VOLTAGE_UPDATE_DUTY((12799-g_s_duty)<<0); 
+#endif
+  g_a_duty=g_s_duty; //need to check
 #else
   CURRENT_UPDATE_DUTY((6400));//update duty
   VOLTAGE_UPDATE_DUTY((6400)); 
+  g_a_duty=400;
+  #endif
+#else
+  CURRENT_UPDATE_DUTY((400));//update duty
+  VOLTAGE_UPDATE_DUTY((400)); 
+  g_a_duty=400;
 #endif
   //g_a_duty=g_s_duty; //test
   //TIM1_CtrlPWMOutputs(ENABLE);  
@@ -842,8 +911,13 @@ void dimming_judge(void)
   //temp1=temp;
   g_record_color_data=temp;
   g_s_duty=duty_step[temp];
-  if(g_s_duty>799)
+#ifdef PMW_2K5
+  if(g_s_duty>12799)
+    g_s_duty=12799;
+#else
+    if(g_s_duty>799)
     g_s_duty=799;
+#endif
   temp=FLASH_ReadByte(POWER_COUNT);  
   
   wirte_count=temp;
@@ -1430,7 +1504,11 @@ void Color_data_save(void)
    if(save_count++>150)
    {
      save_count=150;
-     if(g_data<=2000)//1V power off
+#ifdef TW_18W
+     if(g_data<=1400)//1V power off//2000
+#else
+      if(g_data<=2000)//1V power off//2000 
+#endif
      {   
        if(g_s_color_data!=g_record_color_data&&g_save_flag==1&&flag_pulse==0)
        {

@@ -41,6 +41,7 @@ extern uint16_t ad_ac_low,g_pluse_count;
 extern const uint16_t duty_step[51];
 extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;
 extern uint8_t g_test_io;
+extern uint8_t g_interrupt_flag;
 uint8_t count_flag=0,flag_pulse=0,noise_flag=0,l=0,index=0,g_run_flag=0;
 uint16_t data=0;
 uint16_t test[100],period_time=600;
@@ -167,6 +168,9 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
   /* In order to detect unexpected events during development,
   it is recommended to set a breakpoint on the following instruction.
   */
+  
+  g_interrupt_flag=1;
+  
   uint32_t temp=0;
   
   g_pluse_count=g_pulse_time1;
@@ -232,6 +236,7 @@ INTERRUPT_HANDLER(EXTI_PORTD_IRQHandler, 6)
     //GPIO_WriteReverse(GPIOD,GPIO_PIN_2);//error
   }
   g_pulse_time2=g_pulse_time1; 
+    GPIOD->CR2 &= (uint8_t)(~(GPIO_PIN_3));
 }
 
 
@@ -377,13 +382,23 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
   it is recommended to set a breakpoint on the following instruction.
   */
 #if EXTERN_INTERRUPT	
-  static uint16_t sys_count=0,ad_count=0;
+  static uint16_t sys_count=0,ad_count=0,interrupt_time=0;
   extern uint8_t g_s_color_data;
   
   uint32_t temp_data=0;
   uint8_t data_low_bit,check_sum;
   
   g_pulse_time1++;
+  
+  if(g_interrupt_flag)
+  {
+     if(interrupt_time++>30)
+     {
+        g_interrupt_flag=0;
+        interrupt_time=0;
+        GPIOD->CR2 |= (uint8_t)GPIO_PIN_3;
+     }
+  }
   
   if(count_flag)
   {

@@ -96,8 +96,8 @@ void main(void)
         if(g_s_duty>g_a_duty)
         {   
 #ifdef PMW_2K5
-          if(g_s_duty>g_a_duty+30&&g_a_duty>30)
-            g_a_duty+=26;//3
+          if(g_s_duty>g_a_duty+(30*SHIFT_BIT1)&&g_a_duty>(30*SHIFT_BIT1))
+            g_a_duty+=(26*SHIFT_BIT1);//3
 #else     
           if(g_s_duty>g_a_duty+50&&g_a_duty>50)
             g_a_duty+=3;
@@ -105,8 +105,8 @@ void main(void)
           else                     
             g_a_duty++; 
 #ifdef    PMW_2K5
-          if(g_a_duty>12799)
-            g_a_duty=12799;
+          if(g_a_duty>(12799*SHIFT_BIT1))
+            g_a_duty=(12799*SHIFT_BIT1);
 #else
           if(g_a_duty>799)
             g_a_duty=799;
@@ -117,8 +117,8 @@ void main(void)
           if((g_s_duty<g_a_duty))
           {   
 #ifdef PMW_2K5
-            if(g_a_duty>g_s_duty+30&&g_a_duty<12770)
-              g_a_duty-=26;//3
+            if(g_a_duty>g_s_duty+(30*SHIFT_BIT1)&&g_a_duty<(12770*SHIFT_BIT1))
+              g_a_duty-=(26*SHIFT_BIT1);//3
 #else
             if(g_a_duty>g_s_duty+50&&g_a_duty<50)
               g_a_duty-=3;
@@ -145,12 +145,12 @@ void main(void)
         {
 #ifdef PMW_2K5
 #ifdef TW_18W
-          CURRENT_UPDATE_DUTY((g_a_duty)<<0);//update duty
-          VOLTAGE_UPDATE_DUTY((g_a_duty)<<0); 
+          CURRENT_UPDATE_DUTY((g_a_duty*1)<<0);//update duty
+          VOLTAGE_UPDATE_DUTY((g_a_duty*1)<<0); 
           
 #else
-          CURRENT_UPDATE_DUTY((12799-g_a_duty)<<0);//update duty
-          VOLTAGE_UPDATE_DUTY((12799-g_a_duty)<<0); 
+          CURRENT_UPDATE_DUTY((12799-g_a_duty)*SHIFT_BIT1);//update duty
+          VOLTAGE_UPDATE_DUTY((12799-g_a_duty)*SHIFT_BIT1); 
 #endif
           
 #else

@@ -18,8 +18,8 @@
 #define START_UP_DELAY 0 //300 ms
 #define PWM_SLOW_FLAG  0  // no PWM update
 #ifdef PMW_2K5
-
-#define TIM1_PERIOD   12800//(3200*4-1)  //2k5Khz
+#define SHIFT_BIT1  1
+#define TIM1_PERIOD   (12800*1)//(3200*4-1)  //2k5Khz
 #else
 #define TIM1_PERIOD   799//(3200*4-1)  //40Khz
 #endif

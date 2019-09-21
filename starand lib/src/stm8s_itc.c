@@ -36,7 +36,7 @@
 /* Private variables ---------------------------------------------------------*/
 extern uint16_t ad_arr[30];
 extern uint32_t ad_sum;
-extern int32_t  g_s_duty;
+extern uint32_t  g_s_duty;
 extern uint16_t ad_ac_low,g_pluse_count;
 extern const uint16_t duty_step[51];
 extern uint8_t flick_handler,flick_judge,g_mode,g_flag_uart,g_flag_uart1,g_flag_cct,g_save_flag;

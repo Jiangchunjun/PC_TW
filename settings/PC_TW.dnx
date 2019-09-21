@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <settings>
     <DebugChecksum>
-        <Checksum>2669921496</Checksum>
+        <Checksum>1360690525</Checksum>
     </DebugChecksum>
     <Stack>
         <FillEnabled>0</FillEnabled>
@@ -20,23 +20,6 @@
     <Disassembly>
         <MixedMode>1</MixedMode>
     </Disassembly>
-    <watch_formats>
-        <Fmt0>{W}42:data	1	0</Fmt0>
-        <Fmt1>{W}42:g_record_color_data	3	0</Fmt1>
-        <Fmt2>{W}42:g_s_color_data	3	0</Fmt2>
-        <Fmt3>{W}42:g_s_duty	3	0</Fmt3>
-        <Fmt4>{W}42:test_cct	3	0</Fmt4>
-        <Fmt5>{W}42:test_num	3	0</Fmt5>
-    </watch_formats>
-    <DataSample>
-        <LogEnabled>0</LogEnabled>
-        <GraphEnabled>0</GraphEnabled>
-        <ShowTimeLog>1</ShowTimeLog>
-    </DataSample>
-    <TermIOLog>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-    </TermIOLog>
     <InterruptLog>
         <LogEnabled>0</LogEnabled>
         <GraphEnabled>0</GraphEnabled>
@@ -74,16 +57,33 @@
         <FreqHi>0</FreqHi>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-        <Category>_ 0</Category>
-    </LogFile>
+    <watch_formats>
+        <Fmt0>{W}42:data	1	0</Fmt0>
+        <Fmt1>{W}42:g_record_color_data	3	0</Fmt1>
+        <Fmt2>{W}42:g_s_color_data	3	0</Fmt2>
+        <Fmt3>{W}42:g_s_duty	3	0</Fmt3>
+        <Fmt4>{W}42:test_cct	3	0</Fmt4>
+        <Fmt5>{W}42:test_num	3	0</Fmt5>
+    </watch_formats>
+    <DataSample>
+        <LogEnabled>0</LogEnabled>
+        <GraphEnabled>0</GraphEnabled>
+        <ShowTimeLog>1</ShowTimeLog>
+    </DataSample>
     <Breakpoints>
         <Bp0>_ "STD_CODE" "{$PROJ_DIR$\Application\hal_digital.c}.1739.9" 0 0 0 0 "" 0 ""</Bp0>
         <Bp1>_ "STD_CODE" "{$PROJ_DIR$\Application\hal_digital.c}.1737.7" 0 0 0 0 "" 0 ""</Bp1>
         <Count>2</Count>
     </Breakpoints>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category>_ 0</Category>
+    </LogFile>
+    <TermIOLog>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+    </TermIOLog>
     <Aliases>
         <Count>0</Count>
         <SuppressDialog>0</SuppressDialog>

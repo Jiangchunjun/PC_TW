@@ -30,7 +30,7 @@ uint16_t current_duty=CURRENT_DUTY_INI; //1% to 10%
 uint16_t transformer_duty=40;
 uint16_t  g_current_duty_s=320;
 uint16_t  g_current_duty_a=CURRENT_DUTY_INI;
-int32_t  g_s_duty=0;
+uint32_t  g_s_duty=0;
 uint8_t  g_record_color_data=0;
 uint8_t  g_s_color_data=0;
 uint16_t  g_s_s_duty=0;
@@ -516,8 +516,8 @@ void Time1_Config(void)
   
   /* Set the Pulse value */
 #ifdef PMW_2K5
-  TIM1->CCR3H = (uint8_t)(g_s_duty>>8);//g_s_duty
-  TIM1->CCR3L = (uint8_t)(g_s_duty);  
+  TIM1->CCR3H = (uint8_t)((g_s_duty*(SHIFT_BIT1))>>8);//g_s_duty
+  TIM1->CCR3L = (uint8_t)(g_s_duty*(SHIFT_BIT1));  
 #else
   TIM1->CCR3H = (uint8_t)(400>>8);//g_s_duty
   TIM1->CCR3L = (uint8_t)(400);  
@@ -537,8 +537,8 @@ void Time1_Config(void)
   TIM1->OISR |= (uint8_t)(~TIM1_CCER2_CC4P);
   /* Set the Pulse value */
 #ifdef PMW_2K5
-  TIM1->CCR4H = (uint8_t)(g_s_duty>>8);//g_s_duty
-  TIM1->CCR4L = (uint8_t)(g_s_duty);
+  TIM1->CCR4H = (uint8_t)((g_s_duty*(SHIFT_BIT1))>>8);//g_s_duty
+  TIM1->CCR4L = (uint8_t)(g_s_duty*(SHIFT_BIT1));
 #else
   TIM1->CCR4H = (uint8_t)(400>>8);//g_s_duty
   TIM1->CCR4L = (uint8_t)(400);
@@ -554,11 +554,11 @@ void Time1_Config(void)
 #ifdef PMW_2K5  
 #ifdef START_PWM
 #ifdef TW_18W
-  CURRENT_UPDATE_DUTY((g_s_duty)<<0);//update duty
-  VOLTAGE_UPDATE_DUTY((g_s_duty)<<0); 
+  CURRENT_UPDATE_DUTY((g_s_duty)*SHIFT_BIT1);//update duty
+  VOLTAGE_UPDATE_DUTY((g_s_duty)*SHIFT_BIT1); 
 #else
-  CURRENT_UPDATE_DUTY((12799-g_s_duty)<<0);//update duty
-  VOLTAGE_UPDATE_DUTY((12799-g_s_duty)<<0); 
+  CURRENT_UPDATE_DUTY((12799-g_s_duty)*SHIFT_BIT1);//update duty
+  VOLTAGE_UPDATE_DUTY((12799-g_s_duty)*SHIFT_BIT1); 
 #endif
   g_a_duty=g_s_duty; //need to check
 #else
@@ -912,8 +912,8 @@ void dimming_judge(void)
   g_record_color_data=temp;
   g_s_duty=duty_step[temp];
 #ifdef PMW_2K5
-  if(g_s_duty>12799)
-    g_s_duty=12799;
+  if(g_s_duty>(12799))
+    g_s_duty=(12799);
 #else
     if(g_s_duty>799)
     g_s_duty=799;

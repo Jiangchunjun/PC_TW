@@ -23,9 +23,9 @@ param([String]$debugfile = "");
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\C Pan\work\new pc\PC_TW\settings\PC_TW.TW_40W.general.xcl" --backend -f "C:\C Pan\work\new pc\PC_TW\settings\PC_TW.TW_40W.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\C Pan\work\PC_TW\PC_TW\settings\PC_TW.TW_40W.general.xcl" --backend -f "C:\C Pan\work\PC_TW\PC_TW\settings\PC_TW.TW_40W.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\C Pan\work\new pc\PC_TW\settings\PC_TW.TW_40W.general.xcl" --debug_file=$debugfile --backend -f "C:\C Pan\work\new pc\PC_TW\settings\PC_TW.TW_40W.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\C Pan\work\PC_TW\PC_TW\settings\PC_TW.TW_40W.general.xcl" --debug_file=$debugfile --backend -f "C:\C Pan\work\PC_TW\PC_TW\settings\PC_TW.TW_40W.driver.xcl" 
 }

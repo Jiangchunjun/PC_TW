@@ -1,22 +1,22 @@
-"C:\C Pan\work\new pc\PC_TW\Application\main.c"
+"C:\C Pan\work\PC_TW\PC_TW\Application\main.c"
 -std=c99
 -ferror-limit=0
 -I
-C:\C Pan\work\new pc\PC_TW\starand lib\inc
+C:\C Pan\work\PC_TW\PC_TW\starand lib\inc
 -I
-C:\C Pan\work\new pc\PC_TW\starand lib\src
+C:\C Pan\work\PC_TW\PC_TW\starand lib\src
 -I
-C:\C Pan\work\new pc\PC_TW\Application
+C:\C Pan\work\PC_TW\PC_TW\Application
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\stm8\inc
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\stm8\inc\c
 -I
-C:\C Pan\work\new pc\PC_TW\starand lib\inc
+C:\C Pan\work\PC_TW\PC_TW\starand lib\inc
 -I
-C:\C Pan\work\new pc\PC_TW\starand lib\src
+C:\C Pan\work\PC_TW\PC_TW\starand lib\src
 -I
-C:\C Pan\work\new pc\PC_TW\Application
+C:\C Pan\work\PC_TW\PC_TW\Application
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

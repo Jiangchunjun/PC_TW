@@ -37,6 +37,7 @@
 /* Private functions ---------------------------------------------------------*/
 uint16_t g_period=0, g_on_time=0,g_test_duty;
 uint8_t g_test_io=0;
+uint32_t g_time_base=32;
 extern uint8_t g_dimming_flag, g_mode,flag,g_adc_flag,g_interrupt_flag;
 extern uint16_t data;
 void main(void)
@@ -63,6 +64,10 @@ void main(void)
     if(g_sys_flag)//period 10ms           
     {
       g_sys_flag=0;
+      
+      TIM1->ARRH = (uint8_t)((TIM1_PERIOD/g_time_base*10) >> 8);
+      TIM1->ARRL = (uint8_t)(TIM1_PERIOD/g_time_base*10);
+      
       Color_data_save();  
 #ifdef TW_SHORT
       Short_protect();
@@ -145,8 +150,8 @@ void main(void)
         {
 #ifdef PMW_2K5
 #ifdef TW_18W
-          CURRENT_UPDATE_DUTY((g_a_duty*1)<<0);//update duty
-          VOLTAGE_UPDATE_DUTY((g_a_duty*1)<<0); 
+          CURRENT_UPDATE_DUTY((g_a_duty/g_time_base*10)<<0);//update duty
+          VOLTAGE_UPDATE_DUTY((g_a_duty/g_time_base*10)<<0); 
           
 #else
           CURRENT_UPDATE_DUTY((12799-g_a_duty)*SHIFT_BIT1);//update duty

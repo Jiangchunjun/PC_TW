@@ -34,8 +34,8 @@ uint32_t  g_s_duty=0;
 uint8_t  g_record_color_data=0;
 uint8_t  g_s_color_data=0;
 uint16_t  g_s_s_duty=0;
-int32_t  g_a_duty=CURRENT_DUTY_INI;
-int32_t Get_time=0;
+uint32_t  g_a_duty=CURRENT_DUTY_INI;
+uint32_t Get_time=0;
 uint8_t g_dimming_flag=0;
 uint16_t ad_arr[60]={0,0,0};
 uint32_t ad_fast=0;
@@ -473,10 +473,10 @@ uint16_t get_adc_result(uint8_t adc_channel_no)
 /******************************************************************************/
 void Time1_Config(void)
 {
-    
+ extern uint32_t g_time_base;   
   /* Set the Autoreload value */
-  TIM1->ARRH = (uint8_t)(TIM1_PERIOD >> 8);
-  TIM1->ARRL = (uint8_t)(TIM1_PERIOD);
+  TIM1->ARRH = (uint8_t)((TIM1_PERIOD/g_time_base*10) >> 8);
+  TIM1->ARRL = (uint8_t)(TIM1_PERIOD/g_time_base*10);
   
   /* Set the Prescaler value */
   TIM1->PSCRH = (uint8_t)(0x0 >> 8);

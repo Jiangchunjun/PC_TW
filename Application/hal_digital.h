@@ -83,7 +83,7 @@ extern uint8_t g_box_s_flag,g_led_handle_id;
 extern uint16_t g_period,g_s_s_duty;
 extern uint16_t g_on_time;
 extern uint32_t  g_s_duty;
-extern int32_t  g_a_duty,Get_time;
+extern uint32_t  g_a_duty,Get_time;
 //extern uint16_t Get_time;
 #endif /* __STM8S_IT_H */
 
